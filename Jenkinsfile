@@ -121,6 +121,7 @@ pipeline {
                 pytest tests/test_data.py
                 pytest tests/test_model.py
                 pytest tests/test_api.py
+                pytest test_schema.py
                 '''
             }
         }
