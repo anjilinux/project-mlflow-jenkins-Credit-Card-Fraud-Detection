@@ -120,11 +120,10 @@ stage("Run Pytests") {
         pytest test_data.py
         pytest test_model.py
         pytest test_api.py
-        pytest test_schema.py
+        pytest test_schema.py -W ignore::pydantic.PydanticDeprecatedSince20
         '''
     }
 }
-
 
         /* ================================
            Stage 9: Schema Validation
