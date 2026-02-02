@@ -2,15 +2,19 @@ import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-RAW_DATA_PATH = "creditcard.csv"
-PROCESSED_DATA_PATH = "clean_data.csv"
+# Use Jenkins workspace-relative paths
+RAW_DATA_PATH = os.path.join(os.getcwd(), "creditcard.csv")
+PROCESSED_DATA_PATH = os.path.join(os.getcwd(), "clean_data.csv")
 
 def preprocess_data():
-    # Ensure directory exists
+    # Ensure the processed directory exists
     processed_dir = os.path.dirname(PROCESSED_DATA_PATH)
-    os.makedirs(processed_dir, exist_ok=True)
+    if not os.path.exists(processed_dir):
+        os.makedirs(processed_dir, exist_ok=True)
 
     # Load raw data
+    if not os.path.exists(RAW_DATA_PATH):
+        raise FileNotFoundError(f"Raw data file not found: {RAW_DATA_PATH}")
     df = pd.read_csv(RAW_DATA_PATH)
     print(f"📊 Raw data shape: {df.shape}")
 
