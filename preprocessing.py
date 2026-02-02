@@ -32,4 +32,6 @@ def preprocess_data():
     df.to_csv(PROCESSED_DATA_PATH, index=False)
     print(f"✅ Clean data saved at {PROCESSED_DATA_PATH}")
 
+# Correct indentation here
 if __name__ == "__main__":
+    preprocess_data()
