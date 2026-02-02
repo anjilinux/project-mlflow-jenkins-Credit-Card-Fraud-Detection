@@ -49,7 +49,7 @@ pipeline {
                 sh '''
                 set -e
                 . $VENV_NAME/bin/activate
-                python src/data_ingestion.py
+                python data_ingestion.py
                 '''
             }
         }
@@ -62,7 +62,7 @@ pipeline {
                 sh '''
                 set -e
                 . $VENV_NAME/bin/activate
-                python src/feature_engineering.py
+                python feature_engineering.py
                 '''
             }
         }
@@ -75,7 +75,7 @@ pipeline {
                 sh '''
                 set -e
                 . $VENV_NAME/bin/activate
-                python src/preprocessing.py
+                python preprocessing.py
                 '''
             }
         }
@@ -90,7 +90,7 @@ pipeline {
                 . $VENV_NAME/bin/activate
                 export MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_URI
                 export MLFLOW_EXPERIMENT_NAME=$MLFLOW_EXPERIMENT_NAME
-                python src/train.py
+                python train.py
                 '''
             }
         }
@@ -103,7 +103,7 @@ pipeline {
                 sh '''
                 set -e
                 . $VENV_NAME/bin/activate
-                python src/evaluate.py
+                python evaluate.py
                 '''
             }
         }
@@ -135,7 +135,7 @@ pipeline {
                 . $VENV_NAME/bin/activate
                 export PYTHONPATH=$(pwd)
 
-                pytest tests/test_schema.py
+                pytest test_schema.py
                 '''
             }
         }
