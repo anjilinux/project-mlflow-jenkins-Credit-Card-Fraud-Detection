@@ -152,7 +152,7 @@ stage("FastAPI Smoke Test") {
         set -e
         . $VENV_NAME/bin/activate
 
-        nohup uvicorn app.main:app \
+        nohup uvicorn main:app \
         --host 0.0.0.0 \
         --port $APP_PORT > uvicorn.log 2>&1 &
 
