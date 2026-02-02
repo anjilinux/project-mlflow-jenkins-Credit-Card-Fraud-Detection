@@ -35,7 +35,7 @@ pipeline {
                 set -e
                 python3 -m venv $VENV_NAME
                 . $VENV_NAME/bin/activate
-                pip install --upgrade pip
+
                 pip install -r requirements.txt
                 '''
             }
