@@ -12,7 +12,7 @@ from utils import split_data
 
 DATA_PATH = "clean_data.csv"
 
-mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_tracking_uri("http://localhost:5555")
 mlflow.set_experiment("Credit_Card_Fraud_Detection")
 
 def train():

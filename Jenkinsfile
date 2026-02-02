@@ -6,7 +6,7 @@ pipeline {
         APP_PORT = "8005"
 
         // Safer for CI (no external dependency)
-        MLFLOW_TRACKING_URI = "file:${WORKSPACE}/mlruns"
+        MLFLOW_TRACKING_URI = "http://localhost:5555"
         MLFLOW_EXPERIMENT_NAME = "credit-card-fraud"
     }
 
