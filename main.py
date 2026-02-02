@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 import joblib
 import numpy as np
-from schema import Transaction   # ✅ FIXED
+from schema import FraudInputSchema
 
 app = FastAPI(title="Credit Card Fraud Detection")
 
+# Load trained model
 model = joblib.load("model.pkl")
 
 
@@ -14,11 +15,14 @@ def health():
 
 
 @app.post("/predict")
-def predict(transaction: Transaction):
-    data = np.array([list(transaction.model_dump().values())])
-    prediction = model.predict(data)[0]
+def predict(data: FraudInputSchema):
+    # Convert Pydantic model → numpy array
+    features = np.array([list(data.model_dump().values())])
+
+    # Predict
+    prediction = int(model.predict(features)[0])
 
     return {
-        "fraud": int(prediction),
+        "fraud": prediction,
         "label": "Fraud" if prediction == 1 else "Legit"
     }
