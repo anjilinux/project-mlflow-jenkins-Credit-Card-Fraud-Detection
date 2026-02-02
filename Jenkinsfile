@@ -116,7 +116,7 @@ pipeline {
                 sh '''
                 
                 . $VENV_NAME/bin/activate
-                export PYTHONPATH=$(pwd)
+                 
 
                 pytest tests/test_data.py
                 pytest tests/test_model.py
@@ -133,7 +133,7 @@ pipeline {
                 sh '''
                 
                 . $VENV_NAME/bin/activate
-                export PYTHONPATH=$(pwd)
+                 
 
                 pytest test_schema.py
                 '''
@@ -148,7 +148,7 @@ pipeline {
                 sh '''
                 set -e
                 . $VENV_NAME/bin/activate
-                export PYTHONPATH=$(pwd)
+                 
 
                 nohup uvicorn app.main:app \
                   --host 0.0.0.0 \
@@ -251,8 +251,6 @@ pipeline {
         failure {
             echo "❌ Pipeline Failed – Check Jenkins Logs"
         }
-        always {
-            cleanWs()
-        }
+
     }
 }
