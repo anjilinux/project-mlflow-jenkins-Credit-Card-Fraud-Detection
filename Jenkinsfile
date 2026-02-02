@@ -118,9 +118,9 @@ pipeline {
                 . $VENV_NAME/bin/activate
                  
 
-                pytest tests/test_data.py
-                pytest tests/test_model.py
-                pytest tests/test_api.py
+                pytest test_data.py
+                pytest test_model.py
+                pytest test_api.py
                 pytest test_schema.py
                 '''
             }
