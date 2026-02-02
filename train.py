@@ -1,47 +1,42 @@
+import pandas as pd
+import os
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import joblib
 import mlflow
 import mlflow.sklearn
-import pandas as pd
-import joblib
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, recall_score, precision_score, roc_auc_score
-
-from preprocessing import preprocess_data
-from feature_engineering import feature_engineering
-from utils import split_data
-
-DATA_PATH = "clean_data.csv"
-
-mlflow.set_tracking_uri("http://localhost:5555")
-mlflow.set_experiment("Credit_Card_Fraud_Detection")
+PROCESSED_DATA_PATH = "clean_data.csv"
+MODEL_PATH = "model.pkl"
 
 def train():
-    df = pd.read_csv(DATA_PATH)
-
-    df = preprocess_data(df)
-    df = feature_engineering(df)
-
+    # Load preprocessed data
+    df = pd.read_csv(PROCESSED_DATA_PATH)
     X = df.drop("Class", axis=1)
     y = df["Class"]
 
-    X_train, X_test, y_train, y_test = split_data(X, y)
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    model = LogisticRegression(class_weight="balanced", max_iter=1000)
+    # MLflow experiment
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5555"))
+    mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME", "credit-card-fraud"))
 
     with mlflow.start_run():
-        model.fit(X_train, y_train)
+        # Train model
+        clf = RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced")
+        clf.fit(X_train, y_train)
 
-        y_pred = model.predict(X_test)
+        # Evaluate
+        y_pred = clf.predict(X_test)
+        report = classification_report(y_test, y_pred)
+        print(report)
 
-        mlflow.log_metric("precision", precision_score(y_test, y_pred))
-        mlflow.log_metric("recall", recall_score(y_test, y_pred))
-        mlflow.log_metric("f1_score", f1_score(y_test, y_pred))
-        mlflow.log_metric("roc_auc", roc_auc_score(y_test, y_pred))
-
-        mlflow.sklearn.log_model(model, "model")
-
-        joblib.dump(model, "model.pkl")
-        mlflow.log_artifact("model.pkl")
+        # Log model
+        mlflow.sklearn.log_model(clf, "model")
+        joblib.dump(clf, MODEL_PATH)
+        print(f"✅ Model saved to {MODEL_PATH}")
 
 if __name__ == "__main__":
     train()
