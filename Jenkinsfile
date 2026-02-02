@@ -73,7 +73,7 @@ pipeline {
         stage("Data Preprocessing") {
             steps {
                 sh '''
-                set -e
+
                 . $VENV_NAME/bin/activate
                 python preprocessing.py
                 '''
