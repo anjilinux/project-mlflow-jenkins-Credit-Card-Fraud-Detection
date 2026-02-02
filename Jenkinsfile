@@ -151,11 +151,10 @@ stage("Schema Validation") {
 
 
 
-
 stage("FastAPI Smoke Test") {
-    steps {
-        sh '''
-       set -e
+  steps {
+    sh '''#!/bin/bash
+set -e
 
 . venv/bin/activate
 export PYTHONPATH=$WORKSPACE
@@ -168,16 +167,19 @@ nohup uvicorn main:app \
   > uvicorn.log 2>&1 &
 
 echo "⏳ Waiting for FastAPI..."
-for i in {1..20}; do
+i=0
+while [ $i -lt 20 ]; do
   if curl -s http://localhost:8005/health | grep -q ok; then
     echo "✅ FastAPI is up"
     break
   fi
   sleep 1
+  i=$((i+1))
 done
 
 if ! curl -s http://localhost:8005/health | grep -q ok; then
   echo "❌ FastAPI failed to start"
+  echo "📄 Uvicorn log:"
   cat uvicorn.log
   exit 1
 fi
@@ -191,11 +193,9 @@ curl -f http://localhost:8005/predict \
        "V16":0.1,"V17":0.1,"V18":0.1,"V19":0.1,"V20":0.1,
        "V21":0.1,"V22":0.1,"V23":0.1,"V24":0.1,"V25":0.1,
        "V26":0.1,"V27":0.1,"V28":0.1,"Amount":0.5}'
-
-        '''
-    }
+'''
+  }
 }
-
 
 
 
