@@ -1,4 +1,4 @@
-from app.schema import Transaction
+from schema import Transaction
 
 def test_transaction_schema():
     tx = Transaction(

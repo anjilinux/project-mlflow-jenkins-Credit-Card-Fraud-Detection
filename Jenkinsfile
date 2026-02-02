@@ -111,35 +111,35 @@ pipeline {
         /* ================================
            Stage 8: Pytests (Unit + API)
         ================================= */
-        stage("Run Pytests") {
-            steps {
-                sh '''
-                
-                . $VENV_NAME/bin/activate
-                 
+stage("Run Pytests") {
+    steps {
+        sh '''
+        . $VENV_NAME/bin/activate
+        export PYTHONPATH=$(pwd)
 
-                pytest test_data.py
-                pytest test_model.py
-                pytest test_api.py
-                pytest test_schema.py
-                '''
-            }
-        }
+        pytest test_data.py
+        pytest test_model.py
+        pytest test_api.py
+        pytest test_schema.py
+        '''
+    }
+}
+
 
         /* ================================
            Stage 9: Schema Validation
         ================================= */
-        stage("Schema Validation") {
-            steps {
-                sh '''
-                
-                . $VENV_NAME/bin/activate
-                 
+stage("Schema Validation") {
+    steps {
+        sh '''
+        . $VENV_NAME/bin/activate
+        export PYTHONPATH=$(pwd)
 
-                python schema.py
-                '''
-            }
-        }
+        python schema.py
+        '''
+    }
+}
+
 
         /* ================================
            Stage 10: FastAPI Local Smoke Test
