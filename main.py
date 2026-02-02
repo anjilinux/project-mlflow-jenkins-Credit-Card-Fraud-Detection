@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 import joblib
 import numpy as np
-
-from app.schema import Transaction
+from schema import Transaction   # ✅ FIXED
 
 app = FastAPI(title="Credit Card Fraud Detection")
 
@@ -16,7 +15,7 @@ def health():
 
 @app.post("/predict")
 def predict(transaction: Transaction):
-    data = np.array([list(transaction.dict().values())])
+    data = np.array([list(transaction.model_dump().values())])
     prediction = model.predict(data)[0]
 
     return {
