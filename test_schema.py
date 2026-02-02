@@ -1,12 +1,24 @@
-from schema import Transaction
+from pydantic import BaseModel, Field
+from pydantic import ConfigDict
 
-def test_transaction_schema():
-    tx = Transaction(
-        V1=0.1, V2=0.1, V3=0.1, V4=0.1, V5=0.1,
-        V6=0.1, V7=0.1, V8=0.1, V9=0.1, V10=0.1,
-        V11=0.1, V12=0.1, V13=0.1, V14=0.1, V15=0.1,
-        V16=0.1, V17=0.1, V18=0.1, V19=0.1, V20=0.1,
-        V21=0.1, V22=0.1, V23=0.1, V24=0.1, V25=0.1,
-        V26=0.1, V27=0.1, V28=0.1, Amount=100.0
+class Transaction(BaseModel):
+    V1: float = Field(..., example=0.1)
+    V2: float = Field(..., example=-1.2)
+    ...
+    V28: float = Field(..., example=-0.1)
+    Amount: float = Field(..., example=123.45)
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "V1": 0.1, "V2": -1.2, "V3": 0.3, "V4": 0.4,
+                "V5": -0.5, "V6": 1.1, "V7": 0.7, "V8": -0.8,
+                "V9": 0.9, "V10": -1.0, "V11": 0.2, "V12": -0.4,
+                "V13": 0.6, "V14": -0.9, "V15": 0.8, "V16": -0.7,
+                "V17": 0.5, "V18": -0.6, "V19": 0.1, "V20": -0.2,
+                "V21": 0.3, "V22": -0.4, "V23": 0.5, "V24": -0.6,
+                "V25": 0.7, "V26": -0.8, "V27": 0.9, "V28": -0.1,
+                "Amount": 123.45
+            }
+        }
     )
-    assert tx.Amount == 100.0
