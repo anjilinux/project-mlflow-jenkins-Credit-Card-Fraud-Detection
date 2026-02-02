@@ -1,48 +1,74 @@
-from pydantic import BaseModel, Field, ConfigDict
+# schema.py
+from pydantic import BaseModel, Field
+import pandas as pd
+import sys
+import os
 
-class Transaction(BaseModel):
-    V1: float = Field(...)
-    V2: float = Field(...)
-    V3: float = Field(...)
-    V4: float = Field(...)
-    V5: float = Field(...)
-    V6: float = Field(...)
-    V7: float = Field(...)
-    V8: float = Field(...)
-    V9: float = Field(...)
-    V10: float = Field(...)
-    V11: float = Field(...)
-    V12: float = Field(...)
-    V13: float = Field(...)
-    V14: float = Field(...)
-    V15: float = Field(...)
-    V16: float = Field(...)
-    V17: float = Field(...)
-    V18: float = Field(...)
-    V19: float = Field(...)
-    V20: float = Field(...)
-    V21: float = Field(...)
-    V22: float = Field(...)
-    V23: float = Field(...)
-    V24: float = Field(...)
-    V25: float = Field(...)
-    V26: float = Field(...)
-    V27: float = Field(...)
-    V28: float = Field(...)
-    Amount: float = Field(...)
+# ----------------------------
+# Model Input Schema
+# ----------------------------
+class FraudInputSchema(BaseModel):
+    V1: float
+    V2: float
+    V3: float
+    V4: float
+    V5: float
+    V6: float
+    V7: float
+    V8: float
+    V9: float
+    V10: float
+    V11: float
+    V12: float
+    V13: float
+    V14: float
+    V15: float
+    V16: float
+    V17: float
+    V18: float
+    V19: float
+    V20: float
+    V21: float
+    V22: float
+    V23: float
+    V24: float
+    V25: float
+    V26: float
+    V27: float
+    V28: float
+    Amount: float = Field(..., gt=0)
 
-    # Pydantic V2: JSON schema example
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "V1": 0.1, "V2": -1.2, "V3": 0.3, "V4": 0.4,
-                "V5": -0.5, "V6": 1.1, "V7": 0.7, "V8": -0.8,
-                "V9": 0.9, "V10": -1.0, "V11": 0.2, "V12": -0.4,
-                "V13": 0.6, "V14": -0.9, "V15": 0.8, "V16": -0.7,
-                "V17": 0.5, "V18": -0.6, "V19": 0.1, "V20": -0.2,
-                "V21": 0.3, "V22": -0.4, "V23": 0.5, "V24": -0.6,
-                "V25": 0.7, "V26": -0.8, "V27": 0.9, "V28": -0.1,
-                "Amount": 123.45
-            }
-        }
-    )
+# ----------------------------
+# Dataset Schema Validation
+# ----------------------------
+EXPECTED_COLUMNS = [
+    "V1","V2","V3","V4","V5","V6","V7","V8","V9","V10",
+    "V11","V12","V13","V14","V15","V16","V17","V18","V19","V20",
+    "V21","V22","V23","V24","V25","V26","V27","V28","Amount","Class"
+]
+
+def validate_dataset_schema(csv_path: str):
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Dataset not found: {csv_path}")
+
+    df = pd.read_csv(csv_path)
+
+    missing = set(EXPECTED_COLUMNS) - set(df.columns)
+    extra = set(df.columns) - set(EXPECTED_COLUMNS)
+
+    if missing:
+        raise ValueError(f"Missing columns: {missing}")
+    if extra:
+        raise ValueError(f"Unexpected columns: {extra}")
+
+    print("✅ Dataset schema validation passed")
+
+# ----------------------------
+# Jenkins Entry Point
+# ----------------------------
+if __name__ == "__main__":
+    try:
+        validate_dataset_schema("data/processed/processed_data.csv")
+    except Exception as e:
+        print(f"❌ Schema validation failed: {e}")
+        sys.exit(1)

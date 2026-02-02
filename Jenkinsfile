@@ -204,6 +204,75 @@ curl -f http://localhost:8005/predict \
 
 
 
+stage("Docker Build & Run") {
+  steps {
+    sh '''#!/bin/bash
+set -e
+
+# 🧹 Remove old container by ID
+OLD_ID=$(docker ps -aq --filter "name=credit-card-fraud")
+if [ -n "$OLD_ID" ]; then
+  docker rm -f $OLD_ID
+fi
+
+# 🏗 Build image
+docker build -t credit-card-fraud .
+
+# 🎯 Random port
+HOST_PORT=$(shuf -i 8000-8999 -n 1)
+echo $HOST_PORT > .docker_port
+
+# 🚀 Run container
+CONTAINER_ID=$(docker run -d \
+  -p $HOST_PORT:8005 \
+  --name credit-card-fraud \
+  credit-card-fraud)
+
+echo $CONTAINER_ID > .docker_container_id
+
+echo "🐳 Docker running"
+echo "🆔 Container ID: $CONTAINER_ID"
+echo "🌐 Port: $HOST_PORT"
+'''
+  }
+}
+
+
+
+stage("FastAPI Docker Test") {
+  steps {
+    sh '''#!/bin/bash
+set -e
+
+HOST_PORT=$(cat .docker_port)
+CONTAINER_ID=$(cat .docker_container_id)
+
+echo "⏳ Waiting for Docker FastAPI on port $HOST_PORT..."
+
+i=0
+while [ $i -lt 30 ]; do
+  if curl -s http://localhost:$HOST_PORT/health | grep -q ok; then
+    echo "✅ Docker API is up"
+    break
+  fi
+  sleep 1
+  i=$((i+1))
+done
+
+curl -f -s http://localhost:$HOST_PORT/predict \
+  -H "Content-Type: application/json" \
+  -d '{"V1":0.1,"V2":0.1,"V3":0.1,"V4":0.1,"V5":0.1,
+       "V6":0.1,"V7":0.1,"V8":0.1,"V9":0.1,"V10":0.1,
+       "V11":0.1,"V12":0.1,"V13":0.1,"V14":0.1,"V15":0.1,
+       "V16":0.1,"V17":0.1,"V18":0.1,"V19":0.1,"V20":0.1,
+       "V21":0.1,"V22":0.1,"V23":0.1,"V24":0.1,"V25":0.1,
+       "V26":0.1,"V27":0.1,"V28":0.1,"Amount":0.5}'
+
+# 🧹 Cleanup
+docker rm -f $CONTAINER_ID
+'''
+  }
+}
 
 
 
@@ -212,37 +281,21 @@ curl -f http://localhost:8005/predict \
 
 
 
-        /* ================================
-           Stage 12: Docker API Test
-        ================================= */
-        stage("FastAPI Docker Test") {
-            steps {
-                sh '''
-                
-                HOST_PORT=$(cat .docker_port)
 
-                for i in {1..30}; do
-                    if curl -s http://localhost:$HOST_PORT/health | grep -q "ok"; then
-                        break
-                    fi
-                    sleep 1
-                done
 
-                curl -s -X POST http://localhost:$HOST_PORT/predict \
-                  -H "Content-Type: application/json" \
-                  -d '{
-                    "V1":0.1,"V2":0.1,"V3":0.1,"V4":0.1,"V5":0.1,
-                    "V6":0.1,"V7":0.1,"V8":0.1,"V9":0.1,"V10":0.1,
-                    "V11":0.1,"V12":0.1,"V13":0.1,"V14":0.1,"V15":0.1,
-                    "V16":0.1,"V17":0.1,"V18":0.1,"V19":0.1,"V20":0.1,
-                    "V21":0.1,"V22":0.1,"V23":0.1,"V24":0.1,"V25":0.1,
-                    "V26":0.1,"V27":0.1,"V28":0.1,"Amount":0.5
-                  }'
 
-                docker rm -f credit-card-fraud
-                '''
-            }
-        }
+
+
+
+
+
+
+
+
+
+
+
+
 
         /* ================================
            Stage 13: Archive Artifacts
