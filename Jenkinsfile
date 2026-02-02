@@ -155,42 +155,43 @@ stage("Schema Validation") {
 stage("FastAPI Smoke Test") {
     steps {
         sh '''
-        set -e
-        . venv/bin/activate
+       set -e
 
-        echo "🚀 Starting FastAPI..."
+. venv/bin/activate
+export PYTHONPATH=$WORKSPACE
 
-        nohup uvicorn main:app --host 0.0.0.0 --port 8005 > uvicorn.log 2>&1 &
+echo "🚀 Starting FastAPI..."
 
-        API_PID=$!
+nohup uvicorn main:app \
+  --host 0.0.0.0 \
+  --port 8005 \
+  > uvicorn.log 2>&1 &
 
-        echo "⏳ Waiting for FastAPI..."
+echo "⏳ Waiting for FastAPI..."
+for i in {1..20}; do
+  if curl -s http://localhost:8005/health | grep -q ok; then
+    echo "✅ FastAPI is up"
+    break
+  fi
+  sleep 1
+done
 
-        for i in {1..30}; do
-            if curl -s http://localhost:8005/health | grep -q ok; then
-                echo "✅ FastAPI is up"
-                break
-            fi
-            sleep 1
-        done
+if ! curl -s http://localhost:8005/health | grep -q ok; then
+  echo "❌ FastAPI failed to start"
+  cat uvicorn.log
+  exit 1
+fi
 
-        echo "📄 Uvicorn log:"
-        cat uvicorn.log
+echo "📡 Testing /predict..."
+curl -f http://localhost:8005/predict \
+  -H "Content-Type: application/json" \
+  -d '{"V1":0.1,"V2":0.1,"V3":0.1,"V4":0.1,"V5":0.1,
+       "V6":0.1,"V7":0.1,"V8":0.1,"V9":0.1,"V10":0.1,
+       "V11":0.1,"V12":0.1,"V13":0.1,"V14":0.1,"V15":0.1,
+       "V16":0.1,"V17":0.1,"V18":0.1,"V19":0.1,"V20":0.1,
+       "V21":0.1,"V22":0.1,"V23":0.1,"V24":0.1,"V25":0.1,
+       "V26":0.1,"V27":0.1,"V28":0.1,"Amount":0.5}'
 
-        echo "📡 Testing /predict..."
-
-        curl -f http://localhost:8005/predict \
-          -H "Content-Type: application/json" \
-          -d '{
-            "V1":0.1,"V2":0.1,"V3":0.1,"V4":0.1,"V5":0.1,
-            "V6":0.1,"V7":0.1,"V8":0.1,"V9":0.1,"V10":0.1,
-            "V11":0.1,"V12":0.1,"V13":0.1,"V14":0.1,"V15":0.1,
-            "V16":0.1,"V17":0.1,"V18":0.1,"V19":0.1,"V20":0.1,
-            "V21":0.1,"V22":0.1,"V23":0.1,"V24":0.1,"V25":0.1,
-            "V26":0.1,"V27":0.1,"V28":0.1,"Amount":0.5
-          }'
-
-        kill $API_PID || true
         '''
     }
 }
