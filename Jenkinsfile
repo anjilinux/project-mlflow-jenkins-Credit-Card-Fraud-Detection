@@ -32,7 +32,7 @@ pipeline {
         stage("Setup Virtual Environment") {
             steps {
                 sh '''
-                set -e
+                
                 python3 -m venv $VENV_NAME
                 . $VENV_NAME/bin/activate
 
@@ -47,7 +47,7 @@ pipeline {
         stage("Data Ingestion") {
             steps {
                 sh '''
-                set -e
+                
                 . $VENV_NAME/bin/activate
                 python data_ingestion.py
                 '''
@@ -60,7 +60,7 @@ pipeline {
         stage("Feature Engineering") {
             steps {
                 sh '''
-                set -e
+                
                 . $VENV_NAME/bin/activate
                 python feature_engineering.py
                 '''
@@ -86,7 +86,7 @@ pipeline {
         stage("Model Training") {
             steps {
                 sh '''
-                set -e
+                
                 . $VENV_NAME/bin/activate
                 export MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_URI
                 export MLFLOW_EXPERIMENT_NAME=$MLFLOW_EXPERIMENT_NAME
@@ -101,7 +101,7 @@ pipeline {
         stage("Model Evaluation") {
             steps {
                 sh '''
-                set -e
+                
                 . $VENV_NAME/bin/activate
                 python evaluate.py
                 '''
@@ -114,7 +114,7 @@ pipeline {
         stage("Run Pytests") {
             steps {
                 sh '''
-                set -e
+                
                 . $VENV_NAME/bin/activate
                 export PYTHONPATH=$(pwd)
 
@@ -131,7 +131,7 @@ pipeline {
         stage("Schema Validation") {
             steps {
                 sh '''
-                set -e
+                
                 . $VENV_NAME/bin/activate
                 export PYTHONPATH=$(pwd)
 
@@ -185,7 +185,7 @@ pipeline {
         stage("Docker Build & Run") {
             steps {
                 sh '''
-                set -e
+                
                 docker build -t credit-card-fraud .
                 docker rm -f credit-card-fraud || true
 
@@ -204,7 +204,7 @@ pipeline {
         stage("FastAPI Docker Test") {
             steps {
                 sh '''
-                set -e
+                
                 HOST_PORT=$(cat .docker_port)
 
                 for i in {1..30}; do
