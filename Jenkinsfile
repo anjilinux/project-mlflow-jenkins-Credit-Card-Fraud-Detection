@@ -144,6 +144,14 @@ stage("Schema Validation") {
            Stage 10: FastAPI Local Smoke Test
         ================================= */
       
+
+
+
+
+
+
+
+
 stage("FastAPI Smoke Test") {
     steps {
         sh '''
@@ -152,26 +160,26 @@ stage("FastAPI Smoke Test") {
 
         echo "🚀 Starting FastAPI..."
 
-        nohup uvicorn main:app \
-          --host 0.0.0.0 \
-          --port 8005 \
-          > uvicorn.log 2>&1 &
+        nohup uvicorn main:app --host 0.0.0.0 --port 8005 > uvicorn.log 2>&1 &
 
         API_PID=$!
 
-        echo "⏳ Waiting for FastAPI to be ready..."
+        echo "⏳ Waiting for FastAPI..."
 
         for i in {1..30}; do
-            if curl -s http://localhost:8005/health | grep -q "ok"; then
+            if curl -s http://localhost:8005/health | grep -q ok; then
                 echo "✅ FastAPI is up"
                 break
             fi
             sleep 1
         done
 
-        echo "📡 Testing /predict endpoint..."
+        echo "📄 Uvicorn log:"
+        cat uvicorn.log
 
-        curl -f -s -X POST http://localhost:8005/predict \
+        echo "📡 Testing /predict..."
+
+        curl -f http://localhost:8005/predict \
           -H "Content-Type: application/json" \
           -d '{
             "V1":0.1,"V2":0.1,"V3":0.1,"V4":0.1,"V5":0.1,
@@ -182,7 +190,6 @@ stage("FastAPI Smoke Test") {
             "V26":0.1,"V27":0.1,"V28":0.1,"Amount":0.5
           }'
 
-        echo "🛑 Stopping FastAPI"
         kill $API_PID || true
         '''
     }
@@ -194,24 +201,15 @@ stage("FastAPI Smoke Test") {
 
 
 
-        /* ================================
-           Stage 11: Docker Build & Run
-        ================================= */
-        stage("Docker Build & Run") {
-            steps {
-                sh '''
-                
-                docker build -t credit-card-fraud .
-                docker rm -f credit-card-fraud || true
 
-                HOST_PORT=$(shuf -i 8000-8999 -n 1)
-                docker run -d -p $HOST_PORT:$APP_PORT \
-                  --name credit-card-fraud credit-card-fraud
 
-                echo $HOST_PORT > .docker_port
-                '''
-            }
-        }
+
+
+
+
+
+
+
 
         /* ================================
            Stage 12: Docker API Test
